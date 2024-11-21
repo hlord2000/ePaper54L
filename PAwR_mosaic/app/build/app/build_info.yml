@@ -1,0 +1,47 @@
+cmake:
+  application:
+    configuration-dir: /home/hlord/Documents/Nordic/ePaper54L/PAwR_mosaic/app
+    source-dir: /home/hlord/Documents/Nordic/ePaper54L/PAwR_mosaic/app
+  board:
+    name: nrf54l15esl
+    qualifiers: nrf54l15/cpuapp
+    revision: 
+  devicetree:
+    bindings-dirs:
+     - /opt/ncs/ncs-v2.8/nrf/dts/bindings
+     - /opt/ncs/ncs-v2.8/zephyr/dts/bindings
+    files:
+     - /home/hlord/Documents/Nordic/ePaper54L/PAwR_mosaic/app/boards/nordic/nrf54l15esl/nrf54l15esl_nrf54l15_cpuapp.dts
+    include-dirs:
+     - /opt/ncs/ncs-v2.8/nrf/include
+     - /opt/ncs/ncs-v2.8/nrf/dts
+     - /opt/ncs/ncs-v2.8/zephyr/include
+     - /opt/ncs/ncs-v2.8/zephyr/include/zephyr
+     - /opt/ncs/ncs-v2.8/zephyr/dts/common
+     - /opt/ncs/ncs-v2.8/zephyr/dts/x86
+     - /opt/ncs/ncs-v2.8/zephyr/dts/xtensa
+     - /opt/ncs/ncs-v2.8/zephyr/dts/sparc
+     - /opt/ncs/ncs-v2.8/zephyr/dts/riscv
+     - /opt/ncs/ncs-v2.8/zephyr/dts/posix
+     - /opt/ncs/ncs-v2.8/zephyr/dts/nios2
+     - /opt/ncs/ncs-v2.8/zephyr/dts/arm64
+     - /opt/ncs/ncs-v2.8/zephyr/dts/arm
+     - /opt/ncs/ncs-v2.8/zephyr/dts/arc
+     - /opt/ncs/ncs-v2.8/zephyr/dts
+  kconfig:
+    files:
+     - /home/hlord/Documents/Nordic/ePaper54L/PAwR_mosaic/app/boards/nordic/nrf54l15esl/nrf54l15esl_nrf54l15_cpuapp_defconfig
+     - /home/hlord/Documents/Nordic/ePaper54L/PAwR_mosaic/app/prj.conf
+     - /home/hlord/Documents/Nordic/ePaper54L/PAwR_mosaic/app/build/app/zephyr/.config.sysbuild
+    user-files:
+     - /home/hlord/Documents/Nordic/ePaper54L/PAwR_mosaic/app/prj.conf
+  toolchain:
+    name: zephyr
+    path: /opt/zephyr-sdk-0.17.0
+  vendor-specific:
+    nordic:
+      svdfile: /opt/ncs/ncs-v2.8/modules/hal/nordic/nrfx/mdk/nrf54l15_application.svd
+  zephyr:
+    version: 3.7.99
+    zephyr-base: /opt/ncs/ncs-v2.8/zephyr
+version: 0.1.0

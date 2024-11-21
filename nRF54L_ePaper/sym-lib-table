@@ -1,0 +1,5 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "nordic-lib-kicad-npm")(type "KiCad")(uri "/home/hlord/Documents/NordicWork/nordic-lib-kicad-next/symbols/nordic-lib-kicad-npm.kicad_sym")(options "")(descr ""))
+  (lib (name "nordic-lib-kicad-nrf54")(type "KiCad")(uri "/home/hlord/Documents/NordicWork/nordic-lib-kicad-next/symbols/nordic-lib-kicad-nrf54.kicad_sym")(options "")(descr ""))
+)

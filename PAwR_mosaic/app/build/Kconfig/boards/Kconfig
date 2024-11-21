@@ -1,0 +1,2 @@
+# Load Zephyr board Kconfig descriptions.
+osource "/home/hlord/Documents/Nordic/ePaper54L/PAwR_mosaic/app/boards/nordic/nrf54l15esl/Kconfig"

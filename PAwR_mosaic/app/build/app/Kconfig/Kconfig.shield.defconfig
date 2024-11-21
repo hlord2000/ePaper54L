@@ -1,0 +1,2 @@
+osource "/home/hlord/Documents/Nordic/ePaper54L/PAwR_mosaic/app/boards/shields/*/Kconfig.defconfig"
+osource "/opt/ncs/ncs-v2.8/nrf/boards/shields/*/Kconfig.defconfig"

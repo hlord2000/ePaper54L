@@ -1,0 +1,43 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/hlord/Documents/Nordic/ePaper54L/PAwR_mosaic/app/build/_sysbuild/sysbuild/images/CMakeFiles/app"
+		},
+		{
+			"file" : "/home/hlord/Documents/Nordic/ePaper54L/PAwR_mosaic/app/build/_sysbuild/sysbuild/images/CMakeFiles/app.rule"
+		},
+		{
+			"file" : "/home/hlord/Documents/Nordic/ePaper54L/PAwR_mosaic/app/build/_sysbuild/sysbuild/images/CMakeFiles/app-complete.rule"
+		},
+		{
+			"file" : "/home/hlord/Documents/Nordic/ePaper54L/PAwR_mosaic/app/build/_sysbuild/sysbuild/images/app-prefix/src/app-stamp/app-build.rule"
+		},
+		{
+			"file" : "/home/hlord/Documents/Nordic/ePaper54L/PAwR_mosaic/app/build/_sysbuild/sysbuild/images/app-prefix/src/app-stamp/app-configure.rule"
+		},
+		{
+			"file" : "/home/hlord/Documents/Nordic/ePaper54L/PAwR_mosaic/app/build/_sysbuild/sysbuild/images/app-prefix/src/app-stamp/app-download.rule"
+		},
+		{
+			"file" : "/home/hlord/Documents/Nordic/ePaper54L/PAwR_mosaic/app/build/_sysbuild/sysbuild/images/app-prefix/src/app-stamp/app-install.rule"
+		},
+		{
+			"file" : "/home/hlord/Documents/Nordic/ePaper54L/PAwR_mosaic/app/build/_sysbuild/sysbuild/images/app-prefix/src/app-stamp/app-mkdir.rule"
+		},
+		{
+			"file" : "/home/hlord/Documents/Nordic/ePaper54L/PAwR_mosaic/app/build/_sysbuild/sysbuild/images/app-prefix/src/app-stamp/app-patch.rule"
+		},
+		{
+			"file" : "/home/hlord/Documents/Nordic/ePaper54L/PAwR_mosaic/app/build/_sysbuild/sysbuild/images/app-prefix/src/app-stamp/app-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"app"
+		],
+		"name" : "app"
+	}
+}

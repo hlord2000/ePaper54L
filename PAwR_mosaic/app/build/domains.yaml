@@ -1,0 +1,7 @@
+default: app
+build_dir: /home/hlord/Documents/Nordic/ePaper54L/PAwR_mosaic/app/build
+domains:
+  - name: app
+    build_dir: /home/hlord/Documents/Nordic/ePaper54L/PAwR_mosaic/app/build/app
+flash_order:
+  - app
