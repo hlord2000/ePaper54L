@@ -1,73 +1,47 @@
 /*
- * Copyright (c) 2018 Jan Van Winkel <jan.van_winkel@dxplore.eu>
+ * Copyright (c) 2016 Intel Corporation
  *
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <zephyr/device.h>
-#include <zephyr/pm/device.h>
-#include <zephyr/devicetree.h>
-#include <zephyr/drivers/display.h>
-#include <zephyr/drivers/gpio.h>
-#include <lvgl.h>
 #include <stdio.h>
-#include <string.h>
 #include <zephyr/kernel.h>
-#include <lvgl_input_device.h>
+#include <zephyr/drivers/gpio.h>
 
-#define LOG_LEVEL CONFIG_LOG_DEFAULT_LEVEL
-#include <zephyr/logging/log.h>
-LOG_MODULE_REGISTER(app);
+/* 1000 msec = 1 sec */
+#define SLEEP_TIME_MS   1000
 
-const struct device *display_spi = DEVICE_DT_GET(DT_PROP(DT_PARENT(DT_CHOSEN(zephyr_display)), spi_dev));
+/* The devicetree node identifier for the "led0" alias. */
+#define LED0_NODE DT_ALIAS(led0)
 
-int main(void) {
-	const struct device *display_dev;
+/*
+ * A build error on this line means your board is unsupported.
+ * See the sample documentation for information on how to fix this.
+ */
+static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED0_NODE, gpios);
 
-	display_dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_display));
-	if (!device_is_ready(display_dev)) {
-		LOG_ERR("Device not ready, aborting test");
-	}
-
-	uint8_t my_str[] = "Hey!";
-	uint8_t other_str[] = "What's good?";
-	lv_obj_t *label = lv_label_create(lv_scr_act());
-	lv_label_set_text(label, my_str);
-	lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
-	lv_task_handler();
-
+int main(void)
+{
 	int ret;
-	while (true) {
-		LOG_INF("Suspending display");
-		ret = pm_device_action_run(display_dev, PM_DEVICE_ACTION_SUSPEND);
+	bool led_state = true;
+
+	if (!gpio_is_ready_dt(&led)) {
+		return 0;
+	}
+
+	ret = gpio_pin_configure_dt(&led, GPIO_OUTPUT_ACTIVE);
+	if (ret < 0) {
+		return 0;
+	}
+
+	while (1) {
+		ret = gpio_pin_toggle_dt(&led);
 		if (ret < 0) {
-			LOG_ERR("Could not suspend the display (err %d)", ret);
+			return 0;
 		}
 
-		LOG_INF("Suspending display bus");
-		ret = pm_device_action_run(display_spi, PM_DEVICE_ACTION_SUSPEND);
-		if (ret < 0) {
-			LOG_ERR("Could not suspend the display bus (err %d)", ret);
-			return ret;
-		}
-		k_msleep(5000);
-		LOG_INF("Resuming display bus");
-		ret = pm_device_action_run(display_spi, PM_DEVICE_ACTION_RESUME);
-		if (ret < 0) {
-			LOG_ERR("Could not resume the display (err %d)", ret);
-			return ret;
-		}
-		LOG_INF("Resuming display");
-		ret = pm_device_action_run(display_dev, PM_DEVICE_ACTION_RESUME);
-		if (ret < 0) {
-			LOG_ERR("Could not resume the display (err %d)", ret);
-		}
-		lv_label_set_text(label, other_str);
-		k_msleep(100);
-		lv_task_handler();
-		k_msleep(1000);
-		lv_label_set_text(label, my_str);
-		k_msleep(100);
-		lv_task_handler();
+		led_state = !led_state;
+		k_msleep(SLEEP_TIME_MS);
 	}
+	return 0;
 }

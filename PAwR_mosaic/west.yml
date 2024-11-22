@@ -3,12 +3,12 @@
 
 manifest:
   remotes:
-    - name: ncs
-      url-base: https://github.com/nrfconnect
+    - name: helmut 
+      url-base: https://github.com/hlord2000
 
   projects:
     - name: nrf
-      remote: ncs
+      remote: helmut 
       repo-path: sdk-nrf
       revision: main
       import: true
