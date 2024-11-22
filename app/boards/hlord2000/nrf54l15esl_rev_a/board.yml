@@ -1,0 +1,10 @@
+board:
+  name: nrf54l15esl_rev_a
+  vendor: helmut 
+  socs:
+  - name: nrf54l15
+    variants:
+    - name: xip
+      cpucluster: cpuflpr
+    - name: ns
+      cpucluster: cpuapp
