@@ -1,0 +1,19 @@
+menu "PAwR Mosaic Configuration"
+
+config PAWR_EPD
+	bool "Enabled EPD for PAwR demo"
+	select DISPLAY
+	imply LVGL
+	imply LV_MEM_CUSTOM
+	imply LV_USE_LOG
+	imply LV_USE_LABEL
+	imply LV_USE_IMG
+	imply LV_FONT_MONTSERRAT_14
+	imply LV_FONT_MONTSERRAT_16
+	imply LV_FONT_MONTSERRAT_24
+
+endmenu
+
+source "Kconfig.zephyr"
+
+
