@@ -15,6 +15,7 @@ target_sources_ifdef(CONFIG_PAWR_EPD app PRIVATE
 )
 
 target_sources_ifdef(CONFIG_SENSOR app PRIVATE src/temp_humidity_sensor.c)
+target_sources_ifdef(CONFIG_INPUT app PRIVATE src/buttons.c)
 
 target_include_directories(app PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/../common/include
