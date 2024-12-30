@@ -4,6 +4,7 @@
 #include <zephyr/devicetree.h> 
 #include <zephyr/pm/device.h>
 #include <zephyr/drivers/display.h> 
+#include <zephyr/input/input.h>
 #include <lvgl.h>
 
 #define LOG_LEVEL CONFIG_LOG_DEFAULT_LEVEL
@@ -18,7 +19,6 @@ const struct device *display_dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_display));
 static bool display_active = true;
 
 #if defined(CONFIG_PM_DEVICE)
-// Function to suspend display
 static int epd_suspend(const struct device *dev) {
     int err = pm_device_action_run(dev, PM_DEVICE_ACTION_SUSPEND);
     if (err) {
@@ -30,7 +30,6 @@ static int epd_suspend(const struct device *dev) {
     return 0;
 }
 
-// Function to resume display
 static int epd_resume(const struct device *dev) {
     int err = pm_device_action_run(dev, PM_DEVICE_ACTION_RESUME);
     if (err) {
@@ -65,13 +64,34 @@ const struct smf_state display_states[] = {
 };
 */
 
+static const struct device *const buttons_dev = DEVICE_DT_GET(DT_NODELABEL(buttons));
+
+void buttons_callback(struct input_event *evt, void *user_data) {
+	ARG_UNUSED(user_data);
+	if (evt->type == INPUT_EV_KEY) {
+		switch(evt->code) {
+		case INPUT_KEY_0:
+			break;
+		case INPUT_KEY_1:
+			break;
+		case INPUT_KEY_2:
+			break;
+		case INPUT_KEY_3:
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+INPUT_CALLBACK_DEFINE(buttons_dev, buttons_callback, NULL);
+
 int epd_init(void) {
     if (!device_is_ready(display_dev)) {
         LOG_ERR("Display device not ready");
         return -1;
     }
     display_blanking_off(display_dev);
-    
 #if defined(CONFIG_PM_DEVICE)
     epd_suspend(display_dev);
 #endif
@@ -79,12 +99,3 @@ int epd_init(void) {
 }
 
 SYS_INIT(epd_init, APPLICATION, 90);
-
-/*
-int epd_thread(void) {
-    epd_suspend(display_dev);
-    return 0;
-}
-
-K_THREAD_DEFINE(epd_thread_id, 8192, epd_thread, NULL, NULL, NULL, 7, 0, 0);
-*/
