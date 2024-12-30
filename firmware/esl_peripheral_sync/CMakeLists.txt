@@ -12,11 +12,13 @@ target_sources(app PRIVATE
 target_sources_ifdef(CONFIG_PAWR_EPD app PRIVATE 
 					 src/display.c
 					 src/images/boston.c
+					 src/images/nordic.c
 )
 
 target_sources_ifdef(CONFIG_SENSOR app PRIVATE src/temp_humidity_sensor.c)
 target_sources_ifdef(CONFIG_INPUT app PRIVATE src/buttons.c)
 
 target_include_directories(app PRIVATE
+	include
 	${CMAKE_CURRENT_SOURCE_DIR}/../common/include
 )

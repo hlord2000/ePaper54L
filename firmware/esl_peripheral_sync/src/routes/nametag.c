@@ -18,8 +18,7 @@ void epd_create_layout() {
     
     // Create top status bar container
     LOG_INF("Creating status bar");
-    lv_obj_t *top_bar = lv_obj_create(scr);
-    lv_obj_set_grid_cell(top_bar, LV_GRID_ALIGN_STRETCH, 0, 1,
+    lv_obj_t *top_bar = lv_obj_create(scr); lv_obj_set_grid_cell(top_bar, LV_GRID_ALIGN_STRETCH, 0, 1,
                         LV_GRID_ALIGN_STRETCH, 0, 1);
     
     // Add name text on the left
