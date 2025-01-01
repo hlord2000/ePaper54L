@@ -43,6 +43,13 @@
 		};
 	};
 
+	pointer {
+          compatible = "zephyr,lvgl-button-input";
+          input = <&buttons>;
+          input-codes = <INPUT_KEY_0 INPUT_KEY_1 INPUT_KEY_2 INPUT_KEY_3>;
+          coordinates = <32 112>, <96 112>, <154 112>, <218 112>;
+	};
+
 	aliases {
 		led0 = &led0;
 		sw0 = &button0;

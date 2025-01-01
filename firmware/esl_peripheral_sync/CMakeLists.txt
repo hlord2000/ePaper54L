@@ -10,9 +10,15 @@ target_sources(app PRIVATE
 )
 
 target_sources_ifdef(CONFIG_PAWR_EPD app PRIVATE 
-					 src/display.c
-					 src/images/boston.c
+					 src/display_manager.c
+					 src/ui_manager.c
+					 src/routes/nametag.c
 					 src/images/nordic.c
+					 src/images/boston.c
+					 src/images/philadelphia.c
+					 src/images/spartanburg.c
+					 src/images/trondheim.c
+					 src/images/sanjose.c
 )
 
 target_sources_ifdef(CONFIG_SENSOR app PRIVATE src/temp_humidity_sensor.c)

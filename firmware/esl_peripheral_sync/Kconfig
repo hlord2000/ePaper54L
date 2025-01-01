@@ -8,6 +8,7 @@ config PAWR_EPD
 	imply LV_USE_LOG
 	imply LV_USE_LABEL
 	imply LV_USE_IMG
+	imply LV_USE_THEME_MONO
 	imply LV_FONT_MONTSERRAT_10
 	imply LV_FONT_MONTSERRAT_12
 	imply LV_FONT_MONTSERRAT_14
@@ -16,6 +17,23 @@ config PAWR_EPD
 	imply LV_FONT_MONTSERRAT_24
 
 endmenu
+
+if PAWR_EPD
+
+config LV_Z_VDB_SIZE
+	default 16
+
+config LV_DPI_DEF
+	default 130
+
+choice LV_COLOR_DEPTH
+	default LV_COLOR_DEPTH_1
+endchoice
+
+config LV_Z_BITS_PER_PIXEL
+	default 1
+
+endif # PAWR_EPD
 
 source "Kconfig.zephyr"
 
