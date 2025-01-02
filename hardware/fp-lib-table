@@ -2,4 +2,5 @@
   (version 7)
   (lib (name "nordic-lib-kicad-npm")(type "KiCad")(uri "/home/hlord/Documents/NordicWork/nordic-lib-kicad-next/footprints/nordic-lib-kicad-npm.pretty")(options "")(descr ""))
   (lib (name "nordic-lib-kicad-nrf54-modules")(type "KiCad")(uri "/home/hlord/Documents/NordicWork/nordic-lib-kicad/footprints/nordic-lib-kicad-nrf54-modules.pretty")(options "")(descr ""))
+  (lib (name "ePaper54L-Button_Switch_SMD")(type "KiCad")(uri "${KIPRJMOD}/lib/footprints/ePaper54L-Button_Switch_SMD.pretty")(options "")(descr ""))
 )
