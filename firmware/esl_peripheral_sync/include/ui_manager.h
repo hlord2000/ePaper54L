@@ -107,6 +107,6 @@ int ui_manager_resume(void);
  */
 int ui_manager_suspend(void);
 
-bool ui_manager_is_active(void) {
+bool ui_manager_is_active(void);
 
 #endif /* UI_MANAGER_H */
