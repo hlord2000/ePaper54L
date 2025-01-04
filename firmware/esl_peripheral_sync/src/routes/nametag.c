@@ -4,6 +4,10 @@
 
 #include <lvgl.h>
 
+#define X_RESOLUTION (int)DT_PROP(DT_CHOSEN(zephyr_display), width)
+#define Y_RESOLUTION (int)DT_PROP(DT_CHOSEN(zephyr_display), height)
+#define CONTENT_HEIGHT (Y_RESOLUTION - STATUS_HEIGHT)
+
 typedef struct {
     const char *name;
     const char *location;
@@ -101,7 +105,7 @@ static void update_main_content(const nametag_data_t *nametag) {
     lv_label_set_text(location_label, nametag->location);
     lv_obj_align_to(location_label, name_label, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 0);
 
-    ui_manager_full_update();
+    display_manager_full_update();
 }
 
 void nametag_display_show(uint8_t index) {

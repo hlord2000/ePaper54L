@@ -3,9 +3,7 @@
 #include <zephyr/drivers/sensor.h>
 #include <zephyr/logging/log.h>
 
-#define LOG_LEVEL 4 
-
-LOG_MODULE_REGISTER(temp_humidity_sensor);
+LOG_MODULE_REGISTER(environmental_sensor, LOG_LEVEL_INF);
 
 #include "esl_packets.h"
 

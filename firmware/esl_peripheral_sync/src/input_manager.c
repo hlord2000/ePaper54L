@@ -6,7 +6,7 @@
 #include <zephyr/pm/device.h>
 #endif
 
-LOG_MODULE_REGISTER(buttons, LOG_LEVEL_INF);
+LOG_MODULE_REGISTER(input_manager, LOG_LEVEL_INF);
 
 static const struct device *const buttons_dev = DEVICE_DT_GET(DT_NODELABEL(buttons));
 

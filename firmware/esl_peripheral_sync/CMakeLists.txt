@@ -11,7 +11,10 @@ target_sources(app PRIVATE
 
 target_sources_ifdef(CONFIG_PAWR_EPD app PRIVATE 
 					 src/display_manager.c
+					 src/state_manager.c
 					 src/ui_manager.c
+					 src/routes/boot.c
+					 src/routes/config.c
 					 src/routes/nametag.c
 					 src/images/nordic.c
 					 src/images/boston.c
@@ -21,8 +24,8 @@ target_sources_ifdef(CONFIG_PAWR_EPD app PRIVATE
 					 src/images/sanjose.c
 )
 
-target_sources_ifdef(CONFIG_SENSOR app PRIVATE src/temp_humidity_sensor.c)
-target_sources_ifdef(CONFIG_INPUT app PRIVATE src/buttons.c)
+target_sources_ifdef(CONFIG_SENSOR app PRIVATE src/environmental_sensor.c)
+target_sources_ifdef(CONFIG_INPUT app PRIVATE src/input_manager.c)
 
 target_include_directories(app PRIVATE
 	include

@@ -12,8 +12,6 @@
 #define LOG_LEVEL 4
 LOG_MODULE_REGISTER(ui_manager);
 
-static const struct device *display_dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_display));
-
 // Display resolution from devicetree
 #define X_RESOLUTION (int)DT_PROP(DT_CHOSEN(zephyr_display), width)
 #define Y_RESOLUTION (int)DT_PROP(DT_CHOSEN(zephyr_display), height)
@@ -37,7 +35,6 @@ static void create_base_layout(void) {
 
 static void create_top_bar(void) {
     ui_components.top_bar = lv_obj_create(ui_components.screen);
-//    lv_obj_remove_style_all(ui_components.top_bar);
     lv_obj_set_grid_cell(ui_components.top_bar, LV_GRID_ALIGN_STRETCH, 0, 1,
                          LV_GRID_ALIGN_STRETCH, 0, 1);
 
@@ -61,11 +58,6 @@ static void create_main_content(void) {
 }
 
 int ui_manager_init() {
-    if (display_blanking_off(display_dev)) {
-        LOG_ERR("Failed to turn off display blanking");
-        return -EIO;
-    }
-
     // Initialize UI components
 	LOG_INF("Creating base layout");
     create_base_layout();
@@ -179,60 +171,8 @@ bool ui_manager_is_bottom_bar_visible(void) {
 	return !lv_obj_has_flag(ui_components.bottom_bar, LV_OBJ_FLAG_HIDDEN);
 }
 
-void ui_manager_full_update(void) {
-    if (!display_active) {
-        return;
-    }
-    display_blanking_on(display_dev);
-    lv_task_handler();
-    display_blanking_off(display_dev);
+/*
+int ui_manager_set_route(enum routes route) {
+	
 }
-
-void ui_manager_partial_update(void) {
-    if (!display_active) {
-        return;
-    }
-    lv_task_handler();
-}
-
-
-static void ui_manager_full_update_work_handler(struct k_work *work) {
-	ui_manager_full_update();
-}
-
-static void ui_manager_partial_update_work_handler(struct k_work *work) {
-	ui_manager_partial_update();
-}
-
-K_WORK_DEFINE(ui_manager_full_update_work, ui_manager_full_update_work_handler);
-K_WORK_DEFINE(ui_manager_partial_update_work, ui_manager_partial_update_work_handler);
-
-int ui_manager_resume(void) {
-#if defined(CONFIG_PM_DEVICE)
-    int err = pm_device_action_run(display_dev, PM_DEVICE_ACTION_RESUME);
-    if (err) {
-        LOG_ERR("Failed to resume display: %d", err);
-        return err;
-    }
-    display_active = true;
-    LOG_INF("Display resumed");
-#endif
-    return 0;
-}
-
-int ui_manager_suspend(void) {
-#if defined(CONFIG_PM_DEVICE)
-    int err = pm_device_action_run(display_dev, PM_DEVICE_ACTION_SUSPEND);
-    if (err) {
-        LOG_ERR("Failed to suspend display: %d", err);
-        return err;
-    }
-    display_active = false;
-    LOG_INF("Display suspended");
-#endif
-    return 0;
-}
-
-bool ui_manager_is_active(void) {
-	return display_active;
-}
+*/

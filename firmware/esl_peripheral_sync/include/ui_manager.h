@@ -34,8 +34,7 @@ typedef struct {
  * 
  * @param display Display device pointer
  * @return int 0 on success, negative errno on failure
- */
-int ui_manager_init();
+ */ int ui_manager_init();
 
 /**
  * @brief Clean the main content area
@@ -79,34 +78,5 @@ void ui_manager_set_buttons(button_config_t *buttons, uint8_t button_count);
 void ui_manager_show_bottom_bar(bool show);
 
 bool ui_manager_is_bottom_bar_visible(void);
-
-/**
- * @brief Perform full display update
- */
-void ui_manager_full_update(void);
-
-/**
- * @brief Perform partial display update
- */
-void ui_manager_partial_update(void);
-
-extern struct k_work ui_manager_full_update_work;
-extern struct k_work ui_manager_partial_update_work;
-
-/**
- * @brief Resume display from suspended state
- * 
- * @return int 0 on success, negative errno on failure
- */
-int ui_manager_resume(void);
-
-/**
- * @brief Suspend display
- * 
- * @return int 0 on success, negative errno on failure
- */
-int ui_manager_suspend(void);
-
-bool ui_manager_is_active(void);
 
 #endif /* UI_MANAGER_H */
