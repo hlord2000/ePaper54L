@@ -1,8 +1,12 @@
+#include <lvgl.h>
+
+#include <zephyr/logging/log.h>
+LOG_MODULE_REGISTER(nametag, LOG_LEVEL_INF);
+
 #include "images.h"
 #include "ui_manager.h"
 #include "display_manager.h"
 
-#include <lvgl.h>
 
 #define X_RESOLUTION (int)DT_PROP(DT_CHOSEN(zephyr_display), width)
 #define Y_RESOLUTION (int)DT_PROP(DT_CHOSEN(zephyr_display), height)
@@ -56,6 +60,50 @@ const nametag_data_t nametags[] = {
 	},
 };
 
+
+/*
+static void config_roller_cb(lv_event_t * e) {
+	LOG_INF("Event: %d", e->code);
+	int index = *((int *)e->user_data);
+	LOG_INF("Button index: %d", index);
+
+	lv_key_t key = 0;
+	if (index == 1) {
+		key = LV_KEY_UP;
+	} else if (index == 2) {
+		key = LV_KEY_DOWN;
+	}
+	lv_event_send(config_roller, LV_EVENT_KEY, &key);
+}
+*/
+
+static button_config_t buttons[] = {
+	{
+		.text = "Mosaic",
+		.callback = NULL,
+		.visible = true,
+		.index = 0,
+	},
+	{
+		.text = "Config",
+		.callback = NULL,
+		.visible = true,
+		.index = 1,
+	},
+	{
+		.text = "Diag.",
+		.callback = NULL,
+		.visible = true,
+		.index = 2,
+	},
+	{
+		.text = "Cancel",
+		.callback = NULL,
+		.visible = true,
+		.index = 3,
+	},
+};
+
 static const size_t NUM_NAMETAGS = sizeof(nametags) / sizeof(nametags[0]);
 static uint8_t current_nametag_index = 0;
 
@@ -106,6 +154,9 @@ static void update_main_content(const nametag_data_t *nametag) {
     lv_obj_align_to(location_label, name_label, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 0);
 
     display_manager_full_update();
+
+	ui_manager_set_buttons(buttons, sizeof(buttons)/sizeof(button_config_t));
+	ui_manager_show_bottom_bar(false);
 }
 
 void nametag_display_show(uint8_t index) {

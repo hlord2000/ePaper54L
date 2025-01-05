@@ -27,18 +27,24 @@ static void config_entry(void *o);
 static void config_run(void *o);
 static void config_exit(void *o);
 static void name_tag_entry(void *o);
+static void name_tag_run(void *o);
 static void name_tag_exit(void *o);
 static void mosaic_entry(void *o);
+static void mosaic_run(void *o);
 static void mosaic_exit(void *o);
+static void diagnostics_entry(void *o);
+static void diagnostics_run(void *o);
+static void diagnostics_exit(void *o);
 
-enum epd_states {BOOT_STATE, CONFIG_STATE, NAME_TAG_STATE, MOSAIC_STATE};
+enum epd_states {BOOT_STATE, CONFIG_STATE, NAME_TAG_STATE, MOSAIC_STATE, DIAGNOSTICS_STATE};
 
 // State machine state definitions
 static const struct smf_state display_states[] = {
     [BOOT_STATE] = SMF_CREATE_STATE(boot_entry, boot_run, boot_exit, NULL, NULL),
     [CONFIG_STATE] = SMF_CREATE_STATE(config_entry, config_run, config_exit, NULL, NULL), 
-	[NAME_TAG_STATE] = SMF_CREATE_STATE(name_tag_entry, NULL, name_tag_exit, NULL, NULL), 
-	[MOSAIC_STATE] = SMF_CREATE_STATE(mosaic_entry, NULL, mosaic_exit, NULL, NULL),
+	[NAME_TAG_STATE] = SMF_CREATE_STATE(name_tag_entry, name_tag_run, name_tag_exit, NULL, NULL), 
+	[MOSAIC_STATE] = SMF_CREATE_STATE(mosaic_entry, mosaic_run, mosaic_exit, NULL, NULL),
+	[DIAGNOSTICS_STATE] = SMF_CREATE_STATE(diagnostics_entry, diagnostics_run, diagnostics_exit, NULL, NULL),
 };
 
 static void boot_timer_expired(struct k_timer *timer) {
@@ -57,7 +63,6 @@ static void boot_entry(void *o) {
 
 static void boot_run(void *o) {
     struct epd_sm_data *sm = (struct epd_sm_data *)o;
-    LOG_INF("Running boot state");
 
     if (sm->events & EVENT_BOOT_DONE) {
         smf_set_state(SMF_CTX(&sm->ctx), &display_states[CONFIG_STATE]);
@@ -117,8 +122,28 @@ static void name_tag_run(void *o) {
 	if (ui_manager_is_bottom_bar_visible()) {
 		if (sm->events & EVENT_KEY_0) {
 			smf_set_state(SMF_CTX(&sm->ctx), &display_states[MOSAIC_STATE]);
+		} else if (sm->events & EVENT_KEY_1) {
+			smf_set_state(SMF_CTX(&sm->ctx), &display_states[CONFIG_STATE]);
+		} else if (sm->events & EVENT_KEY_2) {
+			smf_set_state(SMF_CTX(&sm->ctx), &display_states[DIAGNOSTICS_STATE]);
 		} else if (sm->events & EVENT_KEY_3) {
-			smf_set_state(SMF_CTX(&sm->ctx), &display_states[NAME_TAG_STATE]);
+			LOG_INF("Canceled");
+			display_manager_resume();
+			ui_manager_show_bottom_bar(false);
+			display_manager_full_update();
+			display_manager_suspend();
+		}
+	} else if (sm->events != 0 ) {
+		LOG_INF("Button press event raised");
+		display_manager_resume();
+		ui_manager_show_bottom_bar(true);
+		display_manager_full_update();
+	}
+
+	if (!ui_manager_is_bottom_bar_visible()) {
+		if (display_manager_is_active()) {
+			LOG_INF("Bar no longer visible, suspending");
+			display_manager_suspend();
 		}
 	}
 }
@@ -144,7 +169,7 @@ static void mosaic_exit(void *o) {
 // Button callback
 static void buttons_callback(struct input_event *evt, void *user_data) {
     ARG_UNUSED(user_data);
-    if (evt->type == INPUT_EV_KEY) {
+    if (evt->type == INPUT_EV_KEY && evt->value == 1) {
         switch (evt->code) {
             case INPUT_KEY_0:
                 LOG_INF("Button 0 pressed, posting EVENT_KEY_0");
