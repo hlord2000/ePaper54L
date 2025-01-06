@@ -60,23 +60,6 @@ const nametag_data_t nametags[] = {
 	},
 };
 
-
-/*
-static void config_roller_cb(lv_event_t * e) {
-	LOG_INF("Event: %d", e->code);
-	int index = *((int *)e->user_data);
-	LOG_INF("Button index: %d", index);
-
-	lv_key_t key = 0;
-	if (index == 1) {
-		key = LV_KEY_UP;
-	} else if (index == 2) {
-		key = LV_KEY_DOWN;
-	}
-	lv_event_send(config_roller, LV_EVENT_KEY, &key);
-}
-*/
-
 static button_config_t buttons[] = {
 	{
 		.text = "Mosaic",

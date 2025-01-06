@@ -7,6 +7,8 @@ LOG_MODULE_REGISTER(environmental_sensor, LOG_LEVEL_INF);
 
 #include "esl_packets.h"
 
+const struct device *const sht = DEVICE_DT_GET_ANY(sensirion_sht4x);
+
 ZBUS_CHAN_DEFINE(sensor_chan, 
 				 struct esl_sensor_reading,
 				 NULL,
@@ -16,16 +18,26 @@ ZBUS_CHAN_DEFINE(sensor_chan,
 );
 
 struct esl_sensor_reading sensor_reading = {0};
+struct sensor_value temp = {0};
+struct sensor_value hum = {0};
 
 #if defined(CONFIG_ESL_SENSOR_MOCK)
 static void sensor_get_work_handler(struct k_work *work) {
 	LOG_INF("Getting sensor, mock");
 }
 #else
+
 static void sensor_get_work_handler(struct k_work *work) {
-	LOG_INF("Getting sensor");
-	sensor_reading.temperature++;
-	sensor_reading.humidity++;
+	if (sensor_sample_fetch(sht)) {
+		LOG_INF("Failed to fetch sample from SHT4X device");
+		return;
+	}
+	sensor_channel_get(sht, SENSOR_CHAN_AMBIENT_TEMP, &temp);
+	sensor_channel_get(sht, SENSOR_CHAN_HUMIDITY, &hum);
+
+	sensor_reading.temperature = sensor_value_to_float(&temp);
+	sensor_reading.humidity = sensor_value_to_float(&hum);
+
 	int err = zbus_chan_pub(&sensor_chan, &sensor_reading, K_SECONDS(1));
 	if (err < 0) {
 		LOG_ERR("Failed to publish sensor value");

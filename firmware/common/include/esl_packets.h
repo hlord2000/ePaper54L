@@ -12,8 +12,8 @@ struct esl_coordinate {
 } __packed;
 
 struct esl_sensor_reading {
-    uint16_t temperature;
-    uint16_t humidity;
+    float temperature;
+    float humidity;
 } __packed;
 
 #endif

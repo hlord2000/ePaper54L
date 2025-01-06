@@ -11,10 +11,10 @@
 #include <zephyr/bluetooth/hci.h>
 #include <zephyr/logging/log.h>
 
-LOG_MODULE_REGISTER(main);
+LOG_MODULE_REGISTER(main, LOG_LEVEL_DBG);
 
 #define NUM_RSP_SLOTS 10
-#define NUM_SUBEVENTS 5
+#define NUM_SUBEVENTS 10
 #define PACKET_SIZE   32
 #define NAME_LEN      30
 
@@ -23,20 +23,27 @@ static K_SEM_DEFINE(sem_discovered, 0, 1);
 static K_SEM_DEFINE(sem_written, 0, 1);
 static K_SEM_DEFINE(sem_disconnected, 0, 1);
 
+struct k_poll_event events[] = {
+	K_POLL_EVENT_STATIC_INITIALIZER(K_POLL_TYPE_SEM_AVAILABLE, K_POLL_MODE_NOTIFY_ONLY,
+					&sem_connected, 0),
+	K_POLL_EVENT_STATIC_INITIALIZER(K_POLL_TYPE_SEM_AVAILABLE, K_POLL_MODE_NOTIFY_ONLY,
+					&sem_disconnected, 0),
+};
+
 static struct bt_uuid_128 pawr_char_uuid =
-	BT_UUID_INIT_128(BT_UUID_128_ENCODE(0x12345678, 0x1234, 0x5678, 0x1234, 0x56789abcdef1));
+    BT_UUID_INIT_128(BT_UUID_128_ENCODE(0x12345678, 0x1234, 0x5678, 0x1234, 0x56789abcdef1));
 static uint16_t pawr_attr_handle;
 
 /* Periodic advertising interval in 1.25ms units */
-#define PER_ADV_INT_MIN 0xFF
+#define PER_ADV_INT_MIN 0x1F40
 /* Periodic advertising interval in 1.25ms units */
-#define PER_ADV_INT_MAX 0xFF
+#define PER_ADV_INT_MAX 0x1F40
 /* Periodic advertising subevent interval in 1.25ms units */
-#define SUBEVENT_INTERVAL 0x33
+#define SUBEVENT_INTERVAL 0xFF
 /* Periodic advertising subevent response delay in 1.25ms units */
-#define RESPONSE_SLOT_DELAY 0x5
+#define RESPONSE_SLOT_DELAY 0x7C
 /* Periodic advertising response slot spacing in 0.125ms units */
-#define RESPONSE_SLOT_SPACING 0x20
+#define RESPONSE_SLOT_SPACING 0x10
 
 /* Validate interval range overlap with Controller */
 BUILD_ASSERT(PER_ADV_INT_MAX >= BT_GAP_PER_ADV_MIN_INTERVAL,
@@ -81,14 +88,14 @@ BUILD_ASSERT(RESPONSE_SLOT_SPACING >= 0x2 && RESPONSE_SLOT_SPACING <= 0xFF,
 #endif
 
 static const struct bt_le_per_adv_param per_adv_params = {
-	.interval_min = PER_ADV_INT_MIN,
-	.interval_max = PER_ADV_INT_MAX,
-	.options = 0,
-	.num_subevents = NUM_SUBEVENTS,
-	.subevent_interval = SUBEVENT_INTERVAL,
-	.response_slot_delay = RESPONSE_SLOT_DELAY,
-	.response_slot_spacing = RESPONSE_SLOT_SPACING,
-	.num_response_slots = NUM_RSP_SLOTS,
+    .interval_min = PER_ADV_INT_MIN,
+    .interval_max = PER_ADV_INT_MAX,
+    .options = 0,
+    .num_subevents = NUM_SUBEVENTS,
+    .subevent_interval = SUBEVENT_INTERVAL,
+    .response_slot_delay = RESPONSE_SLOT_DELAY,
+    .response_slot_spacing = RESPONSE_SLOT_SPACING,
+    .num_response_slots = NUM_RSP_SLOTS,
 };
 
 static struct bt_le_per_adv_subevent_data_params subevent_data_params[NUM_SUBEVENTS];
@@ -122,8 +129,6 @@ static void request_cb(struct bt_le_ext_adv *adv, const struct bt_le_per_adv_dat
 	err = bt_le_per_adv_set_subevent_data(adv, to_send, subevent_data_params);
 	if (err) {
 		LOG_ERR("Failed to set subevent data (err %d)", err);
-	} else {
-		LOG_INF("Subevent data set %d", counter);
 	}
 }
 
@@ -161,7 +166,6 @@ void connected_cb(struct bt_conn *conn, uint8_t err)
 	__ASSERT(conn == default_conn, "Unexpected connected callback");
 
 	if (err) {
-		LOG_ERR("Connection error 0x%02X", err);
 		bt_conn_unref(default_conn);
 		default_conn = NULL;
 	}
@@ -170,9 +174,6 @@ void connected_cb(struct bt_conn *conn, uint8_t err)
 void disconnected_cb(struct bt_conn *conn, uint8_t reason)
 {
 	LOG_INF("Disconnected, reason 0x%02X %s", reason, bt_hci_err_to_str(reason));
-
-	bt_conn_unref(default_conn);
-	default_conn = NULL;
 
 	k_sem_give(&sem_disconnected);
 }
@@ -358,7 +359,14 @@ int main(void)
 
 		LOG_INF("Scanning successfully started");
 
-		k_sem_take(&sem_connected, K_FOREVER);
+		/* Wait for either remote info available or involuntary disconnect */
+		k_poll(events, ARRAY_SIZE(events), K_FOREVER);
+		err = k_sem_take(&sem_connected, K_NO_WAIT);
+		if (err) {
+			LOG_ERR("Disconnected before remote info available");
+
+			goto disconnected;
+		}
 
 		err = bt_le_per_adv_set_info_transfer(pawr_adv, default_conn, 0);
 		if (err) {
@@ -391,7 +399,7 @@ int main(void)
 		}
 
 		sync_config.subevent = num_synced % NUM_SUBEVENTS;
-		sync_config.response_slot = num_synced / NUM_RSP_SLOTS;
+		sync_config.response_slot = num_synced / NUM_SUBEVENTS;
 		num_synced++;
 
 		write_params.func = write_func;
@@ -428,11 +436,15 @@ disconnect:
 		k_sleep(K_MSEC(per_adv_params.interval_max * 2));
 
 		err = bt_conn_disconnect(default_conn, BT_HCI_ERR_REMOTE_USER_TERM_CONN);
-		if (err) {
+		if (err != 0 && err != -ENOTCONN) {
 			return 0;
 		}
 
+disconnected:
 		k_sem_take(&sem_disconnected, K_FOREVER);
+
+		bt_conn_unref(default_conn);
+		default_conn = NULL;
 	}
 
 	LOG_INF("Maximum numnber of syncs onboarded");

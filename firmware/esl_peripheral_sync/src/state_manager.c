@@ -32,9 +32,9 @@ static void name_tag_exit(void *o);
 static void mosaic_entry(void *o);
 static void mosaic_run(void *o);
 static void mosaic_exit(void *o);
-static void diagnostics_entry(void *o);
-static void diagnostics_run(void *o);
-static void diagnostics_exit(void *o);
+static void diagnostics_entry(void *o) {};
+static void diagnostics_run(void *o) {};
+static void diagnostics_exit(void *o) {};
 
 enum epd_states {BOOT_STATE, CONFIG_STATE, NAME_TAG_STATE, MOSAIC_STATE, DIAGNOSTICS_STATE};
 
@@ -97,7 +97,6 @@ static void config_run(void *o) {
 
 static void config_exit(void *o) {
     LOG_INF("Exiting config state");
-    display_manager_suspend();
 }
 
 // Name tag state handlers
@@ -107,8 +106,6 @@ static void name_tag_entry(void *o) {
     sm->current_state = NAME_TAG_STATE;
 
     LOG_INF("Entering name tag state");
-
-    display_manager_resume();
 
 	ui_manager_show_bottom_bar(false);
 	nametag_display_show(config_get_selected());
@@ -158,8 +155,10 @@ static void mosaic_entry(void *o) {
     LOG_INF("Entering mosaic state");
     display_manager_resume();
     sm->current_state = MOSAIC_STATE;
-    // Auto transition back to config
-    smf_set_state(SMF_CTX(&sm->ctx), &display_states[CONFIG_STATE]);
+}
+
+static void mosaic_run(void *o) {
+    LOG_INF("Running mosaic state");
 }
 
 static void mosaic_exit(void *o) {

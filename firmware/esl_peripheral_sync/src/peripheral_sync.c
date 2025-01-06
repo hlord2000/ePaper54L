@@ -15,9 +15,7 @@
 #include <zephyr/logging/log.h>
 #include "esl_packets.h"
 
-#define LOG_LEVEL LOG_LEVEL_INF
-
-LOG_MODULE_REGISTER(peripheral_sync);
+LOG_MODULE_REGISTER(peripheral_sync, LOG_LEVEL_DBG);
 
 #define NAME_LEN 30
 
@@ -30,7 +28,6 @@ static struct bt_le_per_adv_sync *default_sync;
 static struct __packed {
 	uint8_t subevent;
 	uint8_t response_slot;
-
 } pawr_timing;
 
 static void sync_cb(struct bt_le_per_adv_sync *sync, struct bt_le_per_adv_sync_synced_info *info)
@@ -80,54 +77,62 @@ static bool print_ad_field(struct bt_data *data, void *user_data)
 
 	char data_type[6];
 	snprintf(data_type, 6, "0x%02X:", data->type);
-	LOG_HEXDUMP_DBG(data->data, data->data_len, data_type);
+//	LOG_HEXDUMP_DBG(data->data, data->data_len, data_type);
 
 	return true;
 }
 
+/*
 int bt_le_per_adv_set_response_data(struct bt_le_per_adv_sync *per_adv_sync,
 				    const struct bt_le_per_adv_response_params *params,
 				    const struct net_buf_simple *data);
+*/
 
 static struct bt_le_per_adv_response_params rsp_params;
 
-NET_BUF_SIMPLE_DEFINE_STATIC(rsp_buf, 247);
+NET_BUF_SIMPLE_DEFINE_STATIC(rsp_buf, 512);
 
 extern struct zbus_channel sensor_chan;
 
 static void recv_cb(struct bt_le_per_adv_sync *sync,
-		    const struct bt_le_per_adv_sync_recv_info *info, struct net_buf_simple *buf)
+            const struct bt_le_per_adv_sync_recv_info *info, struct net_buf_simple *buf)
 {
-	int err = 0;
-	struct esl_sensor_reading sensor_reading = {0};
-	err = zbus_chan_read(&sensor_chan, &sensor_reading, K_NO_WAIT);
-	if (err == 0) {
-		LOG_INF("Zbus chan read: %d %d", sensor_reading.temperature, sensor_reading.humidity);
-#if 0
-		/* Echo the data back to the advertiser */
-		net_buf_simple_reset(&rsp_buf);
-		net_buf_simple_add_mem(&rsp_buf, buf->data, buf->len);
+    int err = 0;
+    struct esl_sensor_reading sensor_reading = {0};
 
-		rsp_params.request_event = info->periodic_event_counter;
-		rsp_params.request_subevent = info->subevent;
-		/* Respond in current subevent and assigned response slot */
-		rsp_params.response_subevent = info->subevent;
-		rsp_params.response_slot = pawr_timing.response_slot;
+    err = zbus_chan_read(&sensor_chan, &sensor_reading, K_NO_WAIT);
+    if (err == 0) {
+        LOG_INF("Zbus chan read: %.2f %.2f", sensor_reading.temperature, sensor_reading.humidity);
+        
+        /* Prepare response buffer with properly formatted advertising data */
+        net_buf_simple_reset(&rsp_buf);
+        
+        /* Add sensor data as manufacturer specific data */
+        net_buf_simple_add_u8(&rsp_buf, sizeof(struct esl_sensor_reading) + 1); // Length
+        net_buf_simple_add_u8(&rsp_buf, BT_DATA_MANUFACTURER_DATA);  // AD type
+        net_buf_simple_add_mem(&rsp_buf, &sensor_reading, sizeof(struct esl_sensor_reading));
 
-		LOG_INF("Indication: subevent %d, responding in slot %d", info->subevent,
-		       pawr_timing.response_slot);
-		bt_data_parse(buf, print_ad_field, NULL);
+        /* Set up response parameters */
+        rsp_params.request_event = info->periodic_event_counter;
+        rsp_params.request_subevent = info->subevent;
+        rsp_params.response_subevent = info->subevent;
+        rsp_params.response_slot = pawr_timing.response_slot;
 
-		err = bt_le_per_adv_set_response_data(sync, &rsp_params, &rsp_buf);
-		if (err) {
-			LOG_ERR("Failed to send response (err %d)", err);
-		}
-#endif
-	} else if (buf) {
-		LOG_INF("Received empty indication: subevent %d", info->subevent);
-	} else {
-		LOG_ERR("Failed to receive indication: subevent %d", info->subevent);
-	}
+        LOG_INF("Sending sensor data: temp=%.2f, humidity=%.2f in subevent %d, slot %d", 
+                sensor_reading.temperature, 
+                sensor_reading.humidity,
+                info->subevent,
+                pawr_timing.response_slot);
+
+        err = bt_le_per_adv_set_response_data(sync, &rsp_params, &rsp_buf);
+        if (err) {
+            LOG_ERR("Failed to send response (err %d)", err);
+        }
+    } else if (buf) {
+        LOG_INF("Received empty indication: subevent %d", info->subevent);
+    } else {
+        LOG_ERR("Failed to receive indication: subevent %d", info->subevent);
+    }
 }
 
 static struct bt_le_per_adv_sync_cb sync_callbacks = {
