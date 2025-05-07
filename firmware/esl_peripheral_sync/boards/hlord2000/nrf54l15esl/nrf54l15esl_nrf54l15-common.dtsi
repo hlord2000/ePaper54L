@@ -68,14 +68,12 @@
 		#size-cells = <0>;
 
 		ssd16xx_epaper_gdey0213b74: ssd16xxfb@0 {
-			compatible = "gooddisplay,gdey0213b74", "solomon,ssd1680";
+			compatible = "solomon,ssd1680";
 			mipi-max-frequency = <4000000>;
 			reg = <0>;
 			width = <250>;
 			height = <122>;
 			busy-gpios = <&gpio1 14 GPIO_ACTIVE_HIGH>;
-
-			//tssv = <0x80>;
 
 			full {
 				border-waveform = <0x05>;
@@ -89,7 +87,7 @@
 };
 
 &uart20 {
-	status = "okay";
+	status = "disabled";
 	current-speed = <115200>;
 	pinctrl-0 = <&uart20_default>;
 	pinctrl-1 = <&uart20_sleep>;
@@ -103,6 +101,7 @@
 	pinctrl-1 = <&spi21_sleep>;
 	pinctrl-names = "default", "sleep";
 	cs-gpios = <&gpio1 12 GPIO_ACTIVE_LOW>;
+	zephyr,pm-device-runtime-auto;
 };
 
 &i2c30 {
@@ -116,6 +115,6 @@
 		status = "okay";
 		compatible = "sensirion,sht4x";
 		reg = <0x44>;
-		repeatability = <2>;
+		repeatability = <0>;
 	};
 };

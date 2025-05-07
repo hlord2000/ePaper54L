@@ -5,10 +5,6 @@ cmake_minimum_required(VERSION 3.20.0)
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(esl_peripheral_sync)
 
-target_sources(app PRIVATE 
-	src/peripheral_sync.c
-)
-
 target_sources_ifdef(CONFIG_PAWR_EPD app PRIVATE 
 					 src/display_manager.c
 					 src/state_manager.c
@@ -22,10 +18,15 @@ target_sources_ifdef(CONFIG_PAWR_EPD app PRIVATE
 					 src/images/spartanburg.c
 					 src/images/trondheim.c
 					 src/images/sanjose.c
+	   				 src/peripheral_sync.c
 )
 
-target_sources_ifdef(CONFIG_SENSOR app PRIVATE src/environmental_sensor.c)
-target_sources_ifdef(CONFIG_INPUT app PRIVATE src/input_manager.c)
+target_sources_ifdef(CONFIG_PAWR_EPD_POWER_PROFILING app PRIVATE
+					 src/power_profiling.c
+)
+
+#target_sources_ifdef(CONFIG_SENSOR app PRIVATE src/environmental_sensor.c)
+#target_sources_ifdef(CONFIG_INPUT app PRIVATE src/input_manager.c)
 
 target_include_directories(app PRIVATE
 	include

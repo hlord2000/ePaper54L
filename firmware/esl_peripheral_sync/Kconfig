@@ -16,6 +16,10 @@ config PAWR_EPD
 	imply LV_FONT_MONTSERRAT_18
 	imply LV_FONT_MONTSERRAT_24
 
+config PAWR_EPD_POWER_PROFILING 
+	bool "Test power of EPD"
+	select DISPLAY
+
 endmenu
 
 if PAWR_EPD

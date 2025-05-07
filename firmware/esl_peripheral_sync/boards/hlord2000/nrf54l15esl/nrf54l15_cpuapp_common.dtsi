@@ -28,12 +28,12 @@
 
 &lfxo {
 	load-capacitors = "internal";
-	load-capacitance-femtofarad = <10000>;
+	load-capacitance-femtofarad = <7000>;
 };
 
 &hfxo {
 	load-capacitors = "internal";
-	load-capacitance-femtofarad = <15000>;
+	load-capacitance-femtofarad = <17000>;
 };
 
 &regulators {
@@ -41,8 +41,8 @@
 };
 
 &vregmain {
-	status = "disabled";
-	//regulator-initial-mode = <NRF5X_REG_MODE_DCDC>;
+	status = "okay";
+	regulator-initial-mode = <NRF5X_REG_MODE_DCDC>;
 };
 
 &grtc {
